@@ -1,0 +1,20 @@
+import express from "express";
+import cors from "cors";
+import cookieParser from "cookie-parser";
+
+const app = express();
+
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  })
+);
+
+app.use(express.json({ limit: "16kb" })); // To limit the json flow, its a good practice.
+app.use(express.urlencoded({ extended: true, limit: "16kb" })); // To grab things from the url, it may be in different encoded forms, this makes sure that it will be uniform.
+app.use(express.static("public"));
+
+app.use(cookieParser()); // The server will be able to access and store cookies from the user's browser.
+
+export { app };
