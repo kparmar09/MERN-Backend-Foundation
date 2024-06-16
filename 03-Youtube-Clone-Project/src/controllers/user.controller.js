@@ -19,12 +19,12 @@ const registerUser = asyncHandler(async (req, res) => {
     throw new ApiError(400, "Email field is invalid");
   }
 
-  const existingEmail = User.findOne({ email: email });
+  const existingEmail = await User.findOne({ email: email });
   if (existingEmail) {
     throw new ApiError(409, "User with email already exists");
   }
 
-  const existingUsername = User.findOne({ username: username });
+  const existingUsername = await User.findOne({ username: username });
   if (existingUsername) {
     throw new ApiError(409, "User with this username already exists");
   }
@@ -32,13 +32,23 @@ const registerUser = asyncHandler(async (req, res) => {
   // 3. Upload image to cloudinary and check avatar as it's a required field
   console.log(req.files);
   const avatarLocalPath = req.files?.avatar[0]?.path;
-  const coverImageLocalPath = req.files?.coverImage[0]?.path;
+  let coverImageLocalPath;
+
+  if (
+    req.files &&
+    Array.isArray(req.files.coverImage) &&
+    req.files.coverImage.length > 0
+  ) {
+    coverImageLocalPath = req.files.coverImage[0].path;
+  }
+
   if (!avatarLocalPath) {
     throw new ApiError(400, "Avatar file is required");
   }
 
   const avatar = await uploadOnCloudinary(avatarLocalPath); // await is required as uploading is happening
   const coverImage = await uploadOnCloudinary(coverImageLocalPath);
+
   if (!avatar) {
     throw new ApiError(400, "Avatar file is required");
   }
