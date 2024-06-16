@@ -1,10 +1,8 @@
 // Define an asyncHandler function that takes another function (fn) as an argument.
 const asyncHandler = (fn) => async (req, res, next) => {
   try {
-    // Try to execute the passed-in function (fn) with req, res, and next.
-    await fn(req, res, next);
+    return await fn(req, res, next);
   } catch (err) {
-    // If an error occurs, catch it and respond with a status code and error message.
     res.status(err.code || 500).json({
       success: false,
       message: err.message,
