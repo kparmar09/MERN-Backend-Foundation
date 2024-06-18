@@ -152,11 +152,15 @@ const logoutUser = asyncHandler(async (req, res) => {
   // We got access to the user in req by the verifyJWT middleware.
 
   // 1. Make the refreshToken field undefined in the database
-  await User.findByIdAndUpdate(req.user._id, {
-    $set: {
-      refreshToken: undefined,
+  await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      $unset: {
+        refreshToken: 1,
+      },
     },
-  });
+    { new: true }
+  );
 
   // 2. Clear refreshToken and accessToken from cookies, and send response
   const options = {
