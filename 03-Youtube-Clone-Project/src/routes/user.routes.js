@@ -1,4 +1,6 @@
 import { Router } from "express";
+import { upload } from "../middlewares/multer.middleware.js";
+import { verifyJWT } from "../middlewares/auth.middleware.js";
 import {
   registerUser,
   loginUser,
@@ -9,9 +11,9 @@ import {
   updateUserDetails,
   updateUserAvatar,
   updateUserCoverImage,
+  getUserChannelProfile,
+  getWatchHistory,
 } from "../controllers/user.controller.js";
-import { upload } from "../middlewares/multer.middleware.js";
-import { verifyJWT } from "../middlewares/auth.middleware.js";
 
 const router = Router();
 
@@ -44,5 +46,8 @@ router
 router
   .route("/change-cover-image")
   .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
+
+router.route("/channel/::username").get(getUserChannelProfile);
+router.route("/watch-history").get(getWatchHistory);
 
 export default router;
