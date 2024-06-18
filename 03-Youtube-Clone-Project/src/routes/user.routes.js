@@ -47,7 +47,7 @@ router
   .route("/change-cover-image")
   .patch(verifyJWT, upload.single("coverImage"), updateUserCoverImage);
 
-router.route("/channel/::username").get(getUserChannelProfile);
-router.route("/watch-history").get(getWatchHistory);
+router.route("/channel/:username").get(getUserChannelProfile);
+router.route("/watch-history").get(verifyJWT, getWatchHistory);
 
 export default router;
