@@ -192,6 +192,26 @@ const deleteVideo = asyncHandler(async (req, res) => {
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
+  const loggedInUser = req.user._id;
+  const video = await Video.findById(videoId);
+  if (!video) {
+    throw new ApiError(500, "There is no video with the given video id");
+  }
+  if (!loggedInUser.equals(video.owner)) {
+    throw new ApiError(
+      400,
+      "You cannot toggle publish status of a video created by another user"
+    );
+  }
+
+  video.isPublished = !video.isPublished;
+  await video.save({ validateBeforeSave: false });
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(200, { video }, "Publish Status toggled successfully")
+    );
 });
 
 export {
