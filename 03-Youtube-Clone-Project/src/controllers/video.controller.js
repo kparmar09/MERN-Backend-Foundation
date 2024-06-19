@@ -49,7 +49,7 @@ const publishAVideo = asyncHandler(async (req, res) => {
     thumbnail: thumbnail?.url || "",
     title,
     description,
-    duration: videoFile.duration || 0,
+    duration: videoFile?.duration || 0,
     owner,
   });
 
@@ -87,15 +87,16 @@ const updateVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
   const { title, description } = req.body;
   const thumbnailLocalPath = req.file?.path;
-  const loggedInUser = req.user._id;
+  const loggedInUserId = req.user._id;
 
-  // User verification:-
-  if (!loggedInUser) {
-    throw new ApiError(400, "Unauthorized Access. Please login");
+  // VideoId and User verification:-
+  const isVideoIdCorrect = await Video.findById(videoId);
+  if (!isVideoIdCorrect) {
+    fs.unlinkSync(thumbnailLocalPath);
+    throw new ApiError(400, "There is no video with the given video id.");
   }
 
-  const isLoggedUserTheOwner = await Video.findOne({ owner: loggedInUser });
-  if (!isLoggedUserTheOwner) {
+  if (!loggedInUserId.equals(isVideoIdCorrect.owner)) {
     fs.unlinkSync(thumbnailLocalPath);
     throw new ApiError(
       400,
@@ -107,6 +108,7 @@ const updateVideo = asyncHandler(async (req, res) => {
   if ([title, description].some((field) => field.trim() === "")) {
     throw new ApiError(400, "Please fill all the fields");
   }
+
   if (!thumbnailLocalPath) {
     throw new ApiError(400, "Please provide a thumbnail image");
   }
@@ -151,7 +153,41 @@ const updateVideo = asyncHandler(async (req, res) => {
 
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = req.params;
-  //TODO: delete video
+
+  // VideoId verification:-
+  const isVideoIdCorrect = await Video.findById(videoId);
+  if (!isVideoIdCorrect) {
+    throw new ApiError(400, "There is no video with the given video id.");
+  }
+
+  // User verification:-
+  const loggedInUserId = req.user._id;
+  if (!loggedInUserId.equals(isVideoIdCorrect.owner)) {
+    throw new ApiError(
+      400,
+      "You cannot delete a video created by another user"
+    );
+  }
+
+  // Delete from db:-
+  const deletedVideo = await Video.findByIdAndDelete(videoId).select("_id");
+  if (!deletedVideo) {
+    throw new ApiError(
+      400,
+      "Something went wrong while deleting the video or the video id is invalid."
+    );
+  }
+
+  // return
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        {},
+        "The document with the provided video id was successfully deleted"
+      )
+    );
 });
 
 const togglePublishStatus = asyncHandler(async (req, res) => {
