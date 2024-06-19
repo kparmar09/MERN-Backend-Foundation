@@ -12,6 +12,52 @@ import {
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
   //TODO: get all videos based on query, sort, pagination
+
+  const options = {
+    page: parseInt(page, 10),
+    limit: parseInt(limit, 10),
+  };
+  const videoAggregate = await Video.aggregate([
+    {
+      $match: { isPublished: true },
+    },
+    {
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+        pipeline: [
+          {
+            $project: {
+              username: 1,
+              fullname: 1,
+              avatar: 1,
+            },
+          },
+        ],
+      },
+    },
+    {
+      $addFields: {
+        owner: {
+          $first: "$owner",
+        },
+      },
+    },
+  ]);
+
+  console.log("Video Aggregate:", videoAggregate);
+  console.log("Pagination Options:", options);
+
+  // // Using aggregatePaginate with proper options
+  // const result = await Video.aggregatePaginate({ videoAggregate }, options);
+
+  // console.log("Paginated Result:", result);
+
+  return res
+    .status(200)
+    .json(new ApiResponse(200, { videoAggregate }, "Fetched"));
 });
 
 const publishAVideo = asyncHandler(async (req, res) => {
