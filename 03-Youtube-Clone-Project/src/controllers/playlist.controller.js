@@ -54,7 +54,6 @@ const getPlaylistById = asyncHandler(async (req, res) => {
   const { playlistId } = req.params;
 
   const playlist = await Playlist.findById(playlistId);
-  console.log(playlist);
   if (!playlist) {
     throw new ApiError(
       500,
@@ -69,11 +68,104 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
+  const user = req.user;
+
+  const playlist = await Playlist.findById(playlistId);
+  if (!playlist) {
+    throw new ApiError(
+      500,
+      "Something went wrong while fetching playlist details"
+    );
+  }
+
+  if (!user._id.equals(playlist.owner)) {
+    throw new ApiError(
+      400,
+      "You cannot add videos to a playlist created by another user"
+    );
+  }
+
+  const existingVideos = playlist.videos;
+  existingVideos.push(videoId);
+  console.log(existingVideos);
+
+  const updatedPlaylist = await Playlist.findByIdAndUpdate(
+    playlistId,
+    {
+      $set: {
+        videos: existingVideos,
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedPlaylist) {
+    throw new ApiError(
+      500,
+      "Something went wrong while adding your video to the playlist"
+    );
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { updatedPlaylist },
+        "Video added to the playlist successfully"
+      )
+    );
 });
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
   // TODO: remove video from playlist
+  const user = req.user;
+
+  const playlist = await Playlist.findById(playlistId);
+  if (!playlist) {
+    throw new ApiError(
+      500,
+      "Something went wrong while fetching playlist details"
+    );
+  }
+
+  if (!user._id.equals(playlist.owner)) {
+    throw new ApiError(
+      400,
+      "You cannot remove videos from a playlist created by another user"
+    );
+  }
+
+  let existingVideos = playlist.videos;
+  existingVideos = existingVideos.filter((id) => id != videoId);
+
+  const updatedPlaylist = await Playlist.findByIdAndUpdate(
+    playlistId,
+    {
+      $set: {
+        videos: existingVideos,
+      },
+    },
+    { new: true }
+  );
+
+  if (!updatedPlaylist) {
+    throw new ApiError(
+      500,
+      "Something went wrong while adding your video to the playlist"
+    );
+  }
+
+  return res
+    .status(200)
+    .json(
+      new ApiResponse(
+        200,
+        { updatedPlaylist },
+        "Video removed from the playlist successfully"
+      )
+    );
 });
 
 const deletePlaylist = asyncHandler(async (req, res) => {
