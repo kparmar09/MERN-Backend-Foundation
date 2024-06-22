@@ -34,7 +34,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
 
 const getUserPlaylists = asyncHandler(async (req, res) => {
   const { userId } = req.params;
-  //TODO: get user playlists
 
   const playlist = await Playlist.find({ owner: userId });
 
@@ -87,7 +86,6 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
   const existingVideos = playlist.videos;
   existingVideos.push(videoId);
-  console.log(existingVideos);
 
   const updatedPlaylist = await Playlist.findByIdAndUpdate(
     playlistId,
@@ -119,7 +117,6 @@ const addVideoToPlaylist = asyncHandler(async (req, res) => {
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
   const { playlistId, videoId } = req.params;
-  // TODO: remove video from playlist
   const user = req.user;
 
   const playlist = await Playlist.findById(playlistId);

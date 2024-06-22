@@ -11,7 +11,7 @@ import {
 
 const getAllVideos = asyncHandler(async (req, res) => {
   const { page = 1, limit = 10, query, sortBy, sortType, userId } = req.query;
-  //TODO: get all videos based on query, sort, pagination
+  //For Later: get all videos based on query, sort, pagination
 
   const options = {
     page: parseInt(page, 10),
@@ -47,9 +47,6 @@ const getAllVideos = asyncHandler(async (req, res) => {
     },
   ]);
 
-  console.log("Video Aggregate:", videoAggregate);
-  console.log("Pagination Options:", options);
-
   // // Using aggregatePaginate with proper options
   // const result = await Video.aggregatePaginate({ videoAggregate }, options);
 
@@ -77,7 +74,6 @@ const publishAVideo = asyncHandler(async (req, res) => {
   if (!videoFileLocalPath || !thumbnailLocalPath) {
     throw new ApiError(401, "Please upload both thumbnail and video files");
   }
-  console.log(videoFileLocalPath, thumbnailLocalPath);
 
   const videoFile = await uploadOnCloudinary(videoFileLocalPath);
   const thumbnail = await uploadOnCloudinary(thumbnailLocalPath);

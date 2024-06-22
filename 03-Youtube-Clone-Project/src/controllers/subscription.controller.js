@@ -44,7 +44,6 @@ const toggleSubscription = asyncHandler(async (req, res) => {
     );
 });
 
-// controller to return subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
   const { channelId } = req.params;
 
@@ -97,7 +96,6 @@ const getUserChannelSubscribers = asyncHandler(async (req, res) => {
     );
 });
 
-// controller to return channel list to which user has subscribed
 const getSubscribedChannels = asyncHandler(async (req, res) => {
   const { subscriberId } = req.params;
 

@@ -37,8 +37,6 @@ const getVideoComments = asyncHandler(async (req, res) => {
     },
   ]);
 
-  console.log(commentAggregate);
-
   if (!commentAggregate.length) {
     throw new ApiError(
       400,
