@@ -1,0 +1,5 @@
+1. *Make a seperate function to check if the user is the owner and store it in utils folder and use it where necessary*
+2. *Learn and use aggregate-paginate-v2 library for pagination in video and comment controllers*
+3. *Finish the dashboard controller*
+4. *Finish the deleteFromCloudinary function in cloudinary.js in utils so that the cloud space can be managed efficiently*
+5. *Learn a bit more about aggregation pipelines from youtube*
